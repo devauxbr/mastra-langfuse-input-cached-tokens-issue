@@ -8,6 +8,7 @@ import { Observability, DefaultExporter, CloudExporter, SensitiveDataFilter } fr
 import { weatherWorkflow } from './workflows/weather-workflow';
 import { weatherAgent } from './agents/weather-agent';
 import { toolCallAppropriatenessScorer, completenessScorer, translationScorer } from './scorers/weather-scorer';
+import { LangfuseExporter } from "@mastra/langfuse";
 
 export const mastra = new Mastra({
   workflows: { weatherWorkflow },
@@ -34,6 +35,12 @@ export const mastra = new Mastra({
         exporters: [
           new DefaultExporter(), // Persists traces to storage for Mastra Studio
           new CloudExporter(), // Sends observability data to hosted Mastra Studio (if MASTRA_CLOUD_ACCESS_TOKEN is set)
+          new LangfuseExporter({
+            publicKey: process.env.LANGFUSE_PUBLIC_KEY!,
+            secretKey: process.env.LANGFUSE_SECRET_KEY!,
+            baseUrl: process.env.LANGFUSE_BASE_URL,
+            environment: process.env.NODE_ENV,
+          }),
         ],
         spanOutputProcessors: [
           new SensitiveDataFilter(), // Redacts sensitive data like passwords, tokens, keys
